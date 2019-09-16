@@ -4,7 +4,7 @@ from dataset import BigBIRDObjectData
 
 
 def test_crop():
-    bd = BigBirdObjectData('/home/yuri/Research/Data/BigBIRD/Data/honey_bunches_of_oats_with_almonds')
+    bd = BigBIRDObjectData('/home/yuri/Research/Data/BigBIRD/Data/honey_bunches_of_oats_with_almonds')
     bd.crop_dims = (224, 224)
     im = bd.rgb[0][10]
     # mask = bd.mask[0][10]
@@ -25,7 +25,7 @@ def test_preprocess():
     # %%
     # bd = BigBirdObjectData('/home/yuri/Research/Data/BigBIRD/Data/honey_bunches_of_oats_with_almonds')
     # bd = BigBirdObjectData('/home/yuri/Research/Data/BigBIRD/Data/listerine_green')
-    bd = BigBirdObjectData('/home/yuri/Research/Data/BigBIRD/Data/tapatio_hot_sauce')
+    bd = BigBIRDObjectData('/home/yuri/Research/Data/BigBIRD/Data/tapatio_hot_sauce')
 
     print(bd.cropped_rgb[0][47][:, :, ::-1].shape)
     bd.crop_dims = (224, 224)
@@ -47,4 +47,5 @@ def test_preprocess():
 
 if __name__ == "__main__":
     bd = BigBIRDObjectData('/home/yuri/Research/Data/BigBIRD/Data/honey_bunches_of_oats_with_almonds')
+    bd.poses[2]
     pass

@@ -108,14 +108,14 @@ class BigBIRDObjectData:
                 super().__init__(*args, **kwargs)
 
             def load_item(self, item):
-                return cv2.imread(str(self.owner.data_dir / (BigBirdObjectData._data_filename(self.sensor_id+1, 3*item) + '.jpg')))
+                return cv2.imread(str(self.owner.data_dir / (BigBIRDObjectData._data_filename(self.sensor_id+1, 3*item) + '.jpg')))
 
         class __masks_loader(__loader):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
 
             def load_item(self, item):
-                return cv2.imread(str(self.owner.data_dir / 'masks' / (BigBirdObjectData._data_filename(self.sensor_id+1, 3*item) + '_mask.pbm')))
+                return cv2.imread(str(self.owner.data_dir / 'masks' / (BigBIRDObjectData._data_filename(self.sensor_id+1, 3*item) + '_mask.pbm')))
 
         class __bounding_box(__loader):
             def __init__(self, *args, padding=5, **kwargs):
@@ -150,19 +150,21 @@ class BigBIRDObjectData:
 
                 # return self.owner.BoundingBox(min(col)-self.padding, min(row)-self.padding, max(col)+self.padding, max(row)+self.padding)
 
-        # class __poses(__loader):
-        #     def __init__(self, *args, **kwargs):
-        #         super().__init__(*args, **kwargs)
-        #
-        #     def load_item(self, item):
-        #         return self.owner.data_dir / (BigBirdObjectData._data_filename(self.sensor_id+1, 3*item) + '.jpg')))
-        #         __hdf5_to_numpy_adapter
+        class __poses(__loader):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            def load_item(self, item):
+                fname = self.owner.data_dir / 'poses' / (BigBIRDObjectData._data_filename(self.sensor_id+1, 3*item) + '_pose.h5')
+                fname.stat()    # access to make sure exists
+                return self.owner._hdf5_to_numpy_adapter(h5py.File(fname))
 
         self.rgb = [__image_loader(owner=self, sensor_id=id) for id in range(self.num_sensors)]
         self.mask = [__masks_loader(owner=self, sensor_id=id) for id in range(self.num_sensors)]
         self.bbox = [__bounding_box(owner=self, sensor_id=id) for id in range(self.num_sensors)]
         self.cropped_rgb = [__cropper(owner=self, sensor_id=id, img_src=self.rgb) for id in range(self.num_sensors)]
         self.cropped_mask = [__cropper(owner=self, sensor_id=id, img_src=self.mask) for id in range(self.num_sensors)]
+        self.poses = __poses(owner=self, sensor_id=4, img_src=self.mask)
 
     @property
     def crop_dims(self):
@@ -189,7 +191,7 @@ class BigBIRDObjectData:
         assert fcn is None or callable(fcn)
         self.__preprocess_fcn = (lambda x: x) if fcn is None else fcn
 
-    class __hdf5_to_numpy_adapter:
+    class _hdf5_to_numpy_adapter:
         def __init__(self, obj):
             self.obj = obj
 
@@ -204,7 +206,7 @@ class BigBIRDObjectData:
 
     @property
     def calibration(self):
-        return self.__hdf5_to_numpy_adapter(h5py.File(self.data_dir / 'calibration.h5'))
+        return self._hdf5_to_numpy_adapter(h5py.File(self.data_dir / 'calibration.h5'))
 
 
 
